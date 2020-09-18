@@ -39,6 +39,7 @@ public class Java3MidtermProject extends Application {
     private MenuItem orderDetails;
     private Menu customersMenu;
     private MenuItem byState;
+    private MenuItem allcustomers;
     private Menu employeesMenu;
     private MenuItem birthdaysByYear;
     
@@ -50,6 +51,7 @@ public class Java3MidtermProject extends Application {
     private Button submitState;
     private TextField year;
     private Button submitYear;
+    private Button displayAll;
     
     
     // containers
@@ -58,6 +60,7 @@ public class Java3MidtermProject extends Application {
     private VBox queryBox;
     private VBox orderTotalQuery;
     private VBox orderDetailsQuery;
+    private VBox allCustomersQuery;
     private VBox customerByStateQuery;
     private VBox employeeBirthdaysQuery;
   
@@ -97,7 +100,7 @@ public class Java3MidtermProject extends Application {
             System.out.println("Driver loaded");
 
             // Establish a connection
-            connection = DriverManager.getConnection("jdbc:ucanaccess://C:/Data/Northwind.mdb");
+            connection = DriverManager.getConnection("jdbc:ucanaccess://src/Data/Northwind.mdb");
             System.out.println("Database connected");
             
         } catch (Exception ex) {
@@ -170,6 +173,14 @@ public class Java3MidtermProject extends Application {
         
         // Customers 
         customersMenu = new Menu("Customers");
+        allcustomers = new MenuItem("All Customers");
+        allcustomers.setOnAction(event ->{
+            displayAllCustomers();
+            all.setCenter(initialBox);
+        });
+                
+        customersMenu.getItems().addAll(allcustomers);
+        
         byState = new MenuItem("By State");
         byState.setOnAction(event ->{
             displayCustomersByState();
@@ -322,6 +333,28 @@ public class Java3MidtermProject extends Application {
         orderDetailsQuery.getChildren().addAll(detailsLabel, detailsVBox, errorLabel);
         
         all.setLeft(orderDetailsQuery);
+    }
+    
+    /**
+     * Display Customers By State
+     */
+    public void displayAllCustomers(){
+        allCustomersQuery = new VBox();
+        allCustomersQuery.setId("queryBox");
+        Label allCustomersLabel = new Label();
+        allCustomersLabel.setText("All Customers");
+        allCustomersLabel.setId("queryTitle");
+               
+        
+        displayAll = new Button("Display All");
+        displayAll.setOnAction(event ->{
+            getAllCustomers();
+        });
+        
+        allCustomersQuery.getChildren().addAll(allCustomersLabel, displayAll);
+        allCustomersQuery.setSpacing(15);        
+
+        all.setLeft(allCustomersQuery);
     }
     
     /**
@@ -635,6 +668,64 @@ public class Java3MidtermProject extends Application {
         allOrderDetailsBox.getChildren().addAll(headerBox, orderDetailsTable);
         
         all.setCenter(allOrderDetailsBox);
+    }
+    
+    
+    /**
+     * Get All Customers
+     */
+    public void getAllCustomers(){
+        TableView <Customer> allCustomersTable = new TableView<>();
+        ArrayList <Customer> customerList = new ArrayList<>();
+        ObservableList <Customer> data;
+        allCustomersTable.setPlaceholder(new Label("No Customers Found"));
+        
+        // Create Columns
+        TableColumn nameColumn = new TableColumn("Customer Name");
+        nameColumn.setId("alignLeft");
+        nameColumn.setMinWidth(150);
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn countryColumn = new TableColumn("Country");
+        countryColumn.setId("alignLeft");
+        countryColumn.setMinWidth(150);
+        countryColumn.setCellValueFactory(new PropertyValueFactory<>("country"));
+
+        
+        allCustomersTable.getColumns().addAll(nameColumn, countryColumn);
+
+        try
+        {
+            // Prepare Statement 
+            String queryString = "SELECT ContactName, Country FROM Customers";
+            
+             // Create a statement
+            PreparedStatement preparedStatement = connection.prepareStatement(queryString);
+
+            //Get result set
+            ResultSet tableResults = preparedStatement.executeQuery();
+                        
+            //Get table data for textArea
+            while(tableResults.next()){
+                Customer customer = new Customer();
+                customer.setName(tableResults.getObject(1).toString());
+                customer.setCountry(tableResults.getObject(2).toString());
+
+                customerList.add(customer);
+            }
+            data = FXCollections.observableArrayList(customerList);
+            allCustomersTable.setItems(data);
+
+        }
+        catch (SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        nameColumn.setSortType(TableColumn.SortType.ASCENDING);
+        
+        allCustomersTable.getSortOrder().add(nameColumn);
+        allCustomersTable.getSortOrder().add(countryColumn);
+        all.setCenter(allCustomersTable);
     }
     
     /**

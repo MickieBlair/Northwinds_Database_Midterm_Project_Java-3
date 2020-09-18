@@ -10,6 +10,8 @@ import javafx.beans.property.SimpleStringProperty;
 public class Customer {
     private final SimpleStringProperty name;
     private final SimpleStringProperty city;
+    private final SimpleStringProperty region;
+    private final SimpleStringProperty country;
     
     /**
      * Customer Constructor - no args
@@ -17,6 +19,8 @@ public class Customer {
     Customer(){
         this.name = new SimpleStringProperty();
         this.city = new SimpleStringProperty();
+        this.region = new SimpleStringProperty();
+        this.country = new SimpleStringProperty();
     }
     
     /**
@@ -24,9 +28,11 @@ public class Customer {
      * @param n name
      * @param c city
      */
-    Customer(String n, String c){
+    Customer(String n, String c, String r, String cntry){
         this.name = new SimpleStringProperty(n);
         this.city = new SimpleStringProperty(c);
+        this.region = new SimpleStringProperty(r);
+        this.country = new SimpleStringProperty(cntry);
     }
     
     /**
@@ -46,6 +52,22 @@ public class Customer {
     }
     
     /**
+     * Set Region
+     * @param r region 
+     */
+    public void setRegion(String r){
+        this.region.set(r);
+    }
+    
+    /**
+     * Set Country
+     * @param cntry country 
+     */
+    public void setCountry(String cntry){
+        this.country.set(cntry);
+    }
+    
+    /**
      * Get Name
      * @return name
      */
@@ -59,6 +81,22 @@ public class Customer {
      */
     public String getCity(){
         return this.city.get();
+    }
+    
+    /**
+     * Get Region
+     * @return region 
+     */
+    public String getRegion(){
+        return this.region.get();        
+    }
+    
+    /**
+     * Get Country
+     * @return country 
+     */
+    public String getCountry(){
+        return this.country.get();  
     }
     
     
